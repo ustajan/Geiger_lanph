@@ -36,6 +36,18 @@ The diagram representing the analog part of the design can be seen below.
 
 ![](figures/geiger_lanph.png)
 
+**Explanation of the HV module**
+
+The key part of the Geiger design is the boost converter which is at the core of the HV module.  It's a standard boost converter working in Discontinous Conduction Mode (DCM). This is the mode where the current in the inductor is highly discontinuous, which can be problematic in case of a large current draw at the output.  However the current draw in this design is about O(300 nanoAmps), thus DCM works very well. 
+
+The voltage equation for this mode can be written (see [here](https://youtu.be/6RuPplUim4E) for a full derivation) as 
+
+Vo = (Vi / 2)(1+ sqrt(1 + 2 D^2 TR/L))
+
+where D is the duty factor, T is the period of the switching device, R is the load on Vo, and L is the inductance.
+
+The HV is using the simplest form of a DC-DC boost converter which simply takes a switching intput to the MOSFET as a way of stepping up 4.5 V to 300+ V.  The standard design however has a significant weakness:  if the input voltage sags so will the output voltage, as can be seen by the equation above.  The design we use instead has a feedback, which allows to reset the 555 and thus limit D:  as the voltage sags the point at which this happens gets extended, thus causing D to increase and (hopefully) counter-act drop in Vi.  That's the idea anyway.  For this to work the design needs to be optimized to achieve the highest possible HV value, with the trim resistor then used to _reduce_ it.  This way the voltage will be limitted by the feedback, and the above described condition will be met.
+
 **Data Acquisition (DAQ)**
 
 The DAQ is based on a small Arduino micro-controller.  It takes the output directly from the Geiger tube into one of its digital pins.  
