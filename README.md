@@ -12,7 +12,7 @@ While there are many designs for Geiger counters out there, this design is based
 
 * Simplicity.  No/minimal soldering. Built from fairly common electronic and hardware components
 * Easy to hack, easy to make quick changes.  The use of the breadboard was chosen with this in mind
-* Low price.  If the components are purchased in bulk the total unit cost is approx. \$52 -- this includes the Arduino, LCD, and the Geiger tube. 
+* Low price.  If the components are purchased in bulk the total unit cost is approx. \$46 -- this includes the Arduino, LCD, and the $20 Geiger tube. 
 * The design is not meant to be a product. It is not meant to be pretty. It is instead meant to be an educational platform to help students learn about
   + nuclear detection, e.g. by performing experiments with various radioactive sources
   + statistics, e.g. by collecting data and observing various nuances of Poisson processes
