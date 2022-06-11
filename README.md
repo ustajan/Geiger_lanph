@@ -1,6 +1,8 @@
 # Geiger_lanph: a simple Geiger counter design
 
-Author:  Areg Danagoulian
+Author:  [Areg Danagoulian](areg.mit.edu)
+
+License and copyright:  see LICENSE and COPYRIGHT
 
 This repository provides documentation for a very simple design of a Geiger Counter.  It is based on a synthesis of various open source Geiger counter
 designs, and is optimized for simplicity rather than ergonomics. 
@@ -17,7 +19,13 @@ While there are many designs for Geiger counters out there, this design is based
   + the basics of analog design
   + the basics of Arduino-based digital and software design
 
-The design can be split into three main parts: HV module; Radiation sensor; DAQ and Readout.
+
+The diagram representing the analog part of the design can be seen below.
+
+![](figures/geiger_lanph.png)
+
+
+The design can be split into three main parts: HV module; Radiation sensor; DAQ and Readout.  For a detailed description see the directory *Instructions*.
 
 **HV module**
 
@@ -27,26 +35,28 @@ to a capacitor through a rectifier diode.  To achieve the HV the inductor-ground
 which takes the switching input from the 555 into its base.  This is the basic principle of how spark plugs on an internal combustion 
 engine work. 
 
+
+***Explanation of the HV module***
+
+The key part of the Geiger design is the boost converter which is at the core of the HV module.  It's a standard boost converter working in Discontinous Conduction Mode (DCM). This is the mode where the current in the inductor is highly discontinuous, which can be problematic in case of a large current draw at the output.  However the current draw in this design is about O(300 nanoAmps), thus DCM works very well. 
+
+The *idealized* voltage equation for this mode can be written (see [here](https://youtu.be/6RuPplUim4E) for a full derivation) as 
+
+Vo = (Vi / 2)(1+ sqrt(1 + 2 D^2 TR/L))
+
+where Vo and Vi are the output and input voltages, respectively, D is the duty factor, T is the period of the switching device, R is the load on Vo, and L is the inductance.  For the values that are typical or similar to our design this can be simplified to
+
+Vo = (D Vi / 2) sqrt(2TR/L)
+
+What do we see?  As you increase the period T the inductor has more time to charge, thus producing a stronger voltage when the transisor shuts it off (via Ldi/dt).  It may be tempting to think that one can increase T indefinitely.  This is of course not true, because the equation above assumes *linearity* :  for T~L/R you saturate the inductor and have a non-linear exponential rise in current.  The equation above is only for T<<L/R, where L/R is the time constant of the charge-up of the inductor (fun problem to work on:  derive the equation above without relying on T<<L/R).
+
+The HV is using the simplest form of a DC-DC boost converter which simply takes a switching input to the HV transistor as a way of stepping up 4.5 V to 300+ V.  The standard design however has a significant weakness:  if the input voltage sags so will the output voltage, as can be seen by the equation above.  The design we use instead has a feedback, which allows to reset the 555 and thus limit D:  as the voltage sags the point at which this happens gets extended, thus causing D to increase and (hopefully) counter-act the drop in Vi.  That's the idea anyway.  For this to work the design needs to be optimized to achieve the highest possible HV value, with the trim resistor then used to _reduce_ it.  This way the voltage will be limitted by the feedback, and the above described condition will be met.
+
 **Radiation Sensor**
 
 The HV is then used to bias the Geiger-Muller tube, which in our case is the classic Soviet SBM-20 ($20 on ebay) via a 5.1 MOhm input resistor.
 The negative terminal of the tube is sent to ground via a 5.1 kOhm resistor.  The readout of the signal is directly from the negative terminal.  
 
-The diagram representing the analog part of the design can be seen below.
-
-![](figures/geiger_lanph.png)
-
-**Explanation of the HV module**
-
-The key part of the Geiger design is the boost converter which is at the core of the HV module.  It's a standard boost converter working in Discontinous Conduction Mode (DCM). This is the mode where the current in the inductor is highly discontinuous, which can be problematic in case of a large current draw at the output.  However the current draw in this design is about O(300 nanoAmps), thus DCM works very well. 
-
-The voltage equation for this mode can be written (see [here](https://youtu.be/6RuPplUim4E) for a full derivation) as 
-
-Vo = (Vi / 2)(1+ sqrt(1 + 2 D^2 TR/L))
-
-where D is the duty factor, T is the period of the switching device, R is the load on Vo, and L is the inductance.
-
-The HV is using the simplest form of a DC-DC boost converter which simply takes a switching intput to the MOSFET as a way of stepping up 4.5 V to 300+ V.  The standard design however has a significant weakness:  if the input voltage sags so will the output voltage, as can be seen by the equation above.  The design we use instead has a feedback, which allows to reset the 555 and thus limit D:  as the voltage sags the point at which this happens gets extended, thus causing D to increase and (hopefully) counter-act drop in Vi.  That's the idea anyway.  For this to work the design needs to be optimized to achieve the highest possible HV value, with the trim resistor then used to _reduce_ it.  This way the voltage will be limitted by the feedback, and the above described condition will be met.
 
 **Data Acquisition (DAQ)**
 
@@ -82,11 +92,22 @@ The code reads and prints to file the timestamp of every event in microseconds, 
 
 **Pictures, pictures, pictures...**
 
-![](figures/open.jpg)
+The detector in HV measurement mode (first 10 sec after startup):
+![](figures/closed_hv_mode.jpg)
+The detector measuring radiation from a piece of uranium ore:
 ![](figures/closed.jpg)
+Opened:
+![](figures/open.jpg)
+
+**Attribution**
+
+It is always important to give credit to all the good men and women whose ideas we used in our design.
+
++ HV design.  We use the simplified form of the design used [by these authors](https://github.com/SensorsIot/Geiger-Counter-RadiationD-v1.1-CAJOE-). In our design we skipped the Cockcroft-Walton multiplier by using a larger inductor.
++ Geiger tube's analog readout:  a modification of the [MIT design](https://ocw.mit.edu/courses/22-s902-do-it-yourself-diy-geiger-counters-january-iap-2015/), authored by Mark Chilenski and Matthew d'Assaro. 
 
 **To Do**
 
 Future goals:
 
-+ Change the Arduino code to include readout of the HV voltage as well as the battery voltage.  Include a warning if below a threshold
++ Add a functionality for a button to switch to HV monitoring mode, where Arduino displays the HV in real time, allowing for tuning of the HV.
