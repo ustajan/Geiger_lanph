@@ -86,13 +86,13 @@ The code reads and prints to file the timestamp of every event in microseconds, 
 **Files and documentation**
 
 + ```./BOM``` -- the bill of materials spreadsheet
-+ ```./instructions``` -- Assembly instructions -- **TBA**
++ ```./instructions``` -- Assembly instructions
 + Schematic -- above
-+ Educational material and problem sets / assignments -- **TBA**
++ ```./Experiments_and_projects``` -- Educational material and problem sets / assignments
 
 **Pictures, pictures, pictures...**
 
-The detector in HV measurement mode (first 10 sec after startup):
+The detector:
 ![](figures/closed_hv_mode.jpg)
 The detector measuring radiation from a piece of uranium ore:
 ![](figures/closed.jpg)
